@@ -1,0 +1,18 @@
+{
+  "name": "STE Writing Coach",
+  "description": "Checks technical English with a configurable ASD-STE100-oriented workflow and provides a separate STE-inspired mode for general and literary text.",
+  "conversation_starters": [
+    "Check this maintenance procedure.",
+    "Rewrite this paragraph in STE-inspired English.",
+    "Compare my original and revised instructions.",
+    "Use pressure-relief valve as the preferred term."
+  ],
+  "recommended_capabilities": {
+    "web_search": false,
+    "image_generation": false,
+    "canvas": true,
+    "data_analysis": true
+  },
+  "action_schema": "openapi.yaml",
+  "instructions": "gpt_instructions.md"
+}

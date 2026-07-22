@@ -1,0 +1,40 @@
+@baseUrl = http://localhost:8000
+@apiKey = change-me
+
+### Health
+GET {{baseUrl}}/health
+
+### Analyze a procedure
+POST {{baseUrl}}/v1/analyze
+Authorization: Bearer {{apiKey}}
+Content-Type: application/json
+
+{
+  "text": "Prior to the inspection, disconnect the power and then remove the panel from UNIT-42.",
+  "profile": "strict_ste",
+  "document_type": "procedure"
+}
+
+### Rewrite
+POST {{baseUrl}}/v1/rewrite
+Authorization: Bearer {{apiKey}}
+Content-Type: application/json
+
+{
+  "text": "Prior to the test, utilize UNIT-42.",
+  "profile": "strict_ste",
+  "document_type": "procedure",
+  "strategy": "direct"
+}
+
+### Compare
+POST {{baseUrl}}/v1/compare
+Authorization: Bearer {{apiKey}}
+Content-Type: application/json
+
+{
+  "original": "Set the pressure to 120 kPa.",
+  "revised": "Set the pressure to 100 kPa.",
+  "profile": "strict_ste",
+  "document_type": "procedure"
+}

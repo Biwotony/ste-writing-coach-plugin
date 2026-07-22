@@ -1,0 +1,179 @@
+openapi: 3.1.0
+info:
+  title: STE Writing Coach API
+  version: 0.1.0
+  description: >-
+    Independent controlled-language checker and rewrite helper. This API does not
+    certify ASD-STE100 compliance and does not contain the official ASD-STE100 dictionary.
+servers:
+  - url: https://YOUR-DOMAIN.example.com
+security:
+  - bearerAuth: []
+paths:
+  /health:
+    get:
+      operationId: healthCheck
+      summary: Check whether the STE service is available.
+      security: []
+      x-openai-isConsequential: false
+      responses:
+        "200":
+          description: Service health information.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /v1/rules:
+    get:
+      operationId: listConfiguredRules
+      summary: List the configured checks and the compliance disclaimer.
+      x-openai-isConsequential: false
+      responses:
+        "200":
+          description: Configured rule summary.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /v1/analyze:
+    post:
+      operationId: analyzeText
+      summary: Analyze text using a strict STE-oriented or STE-inspired profile.
+      x-openai-isConsequential: false
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AnalyzeRequest"
+      responses:
+        "200":
+          description: Detailed findings, sentence results, score, and disclaimer.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /v1/rewrite:
+    post:
+      operationId: rewriteText
+      summary: Apply safe deterministic wording changes and return remaining findings.
+      x-openai-isConsequential: false
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RewriteRequest"
+      responses:
+        "200":
+          description: A constrained draft plus its analysis.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /v1/compare:
+    post:
+      operationId: compareTexts
+      summary: Compare original and revised text and check protected literals.
+      x-openai-isConsequential: false
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CompareRequest"
+      responses:
+        "200":
+          description: Analysis comparison and possible literal changes.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    Profile:
+      type: string
+      enum: [strict_ste, ste_inspired]
+    DocumentType:
+      type: string
+      enum: [procedure, description, warning, general, literary_summary]
+    TerminologyEntry:
+      type: object
+      additionalProperties: false
+      required: [preferred]
+      properties:
+        preferred:
+          type: string
+          minLength: 1
+        forbidden_synonyms:
+          type: array
+          items:
+            type: string
+          default: []
+        definition:
+          type: [string, "null"]
+        category:
+          type: string
+          enum: [technical_noun, technical_verb, general]
+          default: general
+    AnalyzeRequest:
+      type: object
+      additionalProperties: false
+      required: [text]
+      properties:
+        text:
+          type: string
+          minLength: 1
+          maxLength: 100000
+        profile:
+          $ref: "#/components/schemas/Profile"
+        document_type:
+          $ref: "#/components/schemas/DocumentType"
+        terminology:
+          type: array
+          items:
+            $ref: "#/components/schemas/TerminologyEntry"
+          default: []
+        include_rewrite_candidates:
+          type: boolean
+          default: true
+    RewriteRequest:
+      allOf:
+        - $ref: "#/components/schemas/AnalyzeRequest"
+        - type: object
+          properties:
+            strategy:
+              type: string
+              enum: [minimal, direct, stepwise]
+              default: direct
+    CompareRequest:
+      type: object
+      additionalProperties: false
+      required: [original, revised]
+      properties:
+        original:
+          type: string
+          minLength: 1
+          maxLength: 100000
+        revised:
+          type: string
+          minLength: 1
+          maxLength: 100000
+        profile:
+          $ref: "#/components/schemas/Profile"
+        document_type:
+          $ref: "#/components/schemas/DocumentType"
+        terminology:
+          type: array
+          items:
+            $ref: "#/components/schemas/TerminologyEntry"
+          default: []

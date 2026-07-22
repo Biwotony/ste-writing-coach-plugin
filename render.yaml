@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: ste-writing-coach
+    runtime: docker
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: STE_API_KEY
+        generateValue: true
+      - key: ALLOWED_ORIGINS
+        value: "*"
